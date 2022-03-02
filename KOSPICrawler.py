@@ -190,6 +190,34 @@ class KOSPICrawler:
 
         return corp_fin
 
+    def _format_num(self, num : str) -> str:
+        """Add comma to input num"""
+        
+        ## Ex) 23,4231,1234.212141 -> 2,342,311,234.212141
+        
+        ## remove pre-exist ','
+        num = num.replace(',', '')
+        new_num = ''
+        
+        start_idx = len(num) - 1
+        if '.' in num:
+            start_idx = num.index('.') - 1
+            ## '.4321'
+            new_num += num[start_idx+1:]           
+        
+        digit_num = 0
+        for i in range(start_idx, -1, -1):
+            digit_num += 1
+            if i == 0:
+                new_num = num[i] + new_num
+                continue
+            if digit_num % 3 == 0:
+                new_num = f',{num[i]}' + new_num
+                continue
+            new_num = num[i] + new_num
+        
+        return new_num
+    
     def _set_api_key(self) -> None:
         """DART Open 서비스 이용을 위한 api_key 입력"""
         dart.set_api_key(api_key='1bf8a5d812f3e051f08b1cb262b4b4bd6c9b1ced')
@@ -361,10 +389,10 @@ if __name__ == '__main__':
     #url = 'https://finance.naver.com/item/main.naver?code=005930'
     #KOSPICrawler(url)
     #load_corp_code()
-    crawler = KOSPICrawler()
-    corp = crawler._scrap_naver_fin_page('00159616', '두산중공업', '034020')
-    print(corp)
-    
+    # crawler = KOSPICrawler()
+    # corp = crawler._scrap_naver_fin_page('00159616', '두산중공업', '034020')
+    # print(corp)
+
     #crawler.run_naver()
     #corp = crawler._scrap_naver_fin_page('00177816','대주전자재료','078600')
     #corp = crawler._scrap_naver_fin_page('00126308','삼성엔지니어링','028050')
@@ -374,3 +402,9 @@ if __name__ == '__main__':
     #corp = crawler._scrap_naver_fin_page('00159616', '두산중공업', '034020')
     #corp = crawler._scrap_naver_fin_page('01199550', '현대에너지솔루션', '322000')
     # print(corp)
+    
+    crawler = KOSPICrawler()
+    # corp = crawler._scrap_naver_fin_page('00159616', '두산중공업', '034020')
+    # print(corp)
+    print(crawler._format_num('23,4231,1234.212141'))
+    
