@@ -41,9 +41,11 @@ class CorpFinance(object):
         PBR(배), 주가순자비율
     """
 
-    def __init__(self, corp_name: str,
-                 corp_code: str,
-                 stock_code: str):
+    def __init__(self,
+        corp_name: str,
+        corp_code: str,
+        stock_code: str
+        ) -> None:
 
         self.corp_name = corp_name
         self.corp_code = corp_code
@@ -62,6 +64,8 @@ class CorpFinance(object):
         self.quick_rate = None
         self.per = None
         self.pbr = None
+        
+        return
 
     def set_market_cap(self, val: str) -> None:
         """현재 시점의 시가총액을 저장
@@ -197,6 +201,44 @@ class CorpFinance(object):
 
     ## FIXME 성장률 계산, 동종업계 속성 추가
 
+    def _format_num(self, num : str) -> str:
+        """Add comma to input num"""
+        
+        ## Ex) 23,4231,1234.212141 -> 2,342,311,234.212141
+        
+        ## remove pre-exist ','
+        num = num.replace(',', '')
+        
+        ## negative sign
+        sign = ''
+        if num[0] == '-':
+            sign = '-'
+            num = num[1:]
+
+        ## formatted num string
+        new_num = ''
+        
+        start_idx = len(num) - 1
+        if '.' in num:
+            start_idx = num.index('.') - 1
+            ## '.4321'
+            new_num += num[start_idx+1:]           
+        
+        digit_num = 0
+        for i in range(start_idx, -1, -1):
+            digit_num += 1
+            if i == 0:
+                new_num = num[i] + new_num
+                continue
+            if digit_num % 3 == 0:
+                new_num = f',{num[i]}' + new_num
+                continue
+            new_num = num[i] + new_num
+        
+        new_num = sign + new_num
+        
+        return new_num
+    
     def __str__(self) -> str:
         """print(CorpFinance) 시 출력 내용"""
 
@@ -229,6 +271,6 @@ if __name__ == '__main__':
     print(f'> [WARNING] We recommend using this code at other running scripts...')
     print(f'> [WARNING] Anyway... Running...')
     #help(CorpFinance)
-    #corp_fin = CorpFinance('', '', '')
+    corp_fin = CorpFinance('', '', '')
     #print(corp_fin)
     #print(CorpFinance)
