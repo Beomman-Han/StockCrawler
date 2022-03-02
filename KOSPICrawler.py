@@ -10,14 +10,64 @@ from bs4 import BeautifulSoup
 #from collections import OrderedDict
 from CorpFinance import CorpFinance
 
-class KOSPICrawler(Crawler):
-    """KOSPI 종목을 크롤링한다."""
+class CorpInfo(object):
+    
+    def __init__(self,
+        corp_code : str,
+        corp_name : str,
+        stock_code : str,
+        update_date : str
+        ) -> None:
+        
+        self.corp_code = corp_code
+        self.corp_name = corp_name
+        self.stock_code = stock_code
+        self.update_date = update_date
+        
+        return
 
-    #def __init__(self, url):
-    def __init__(self):
-        #self.url = url
-        self._KOSPI_CODE = 'Y'
-        self._STOCK_DB = '/Users/hanbeomman/Documents/stock/DB'
+class KOSPICrawler(Crawler):
+    """KOSPI 종목 관련 재무 정보를 크롤링하기 위한 클래스
+    """
+    
+    KOSPI_CODE = 'Y'
+
+    def __init__(self, csv: str) -> None:
+        """Initialize KOSPICrawler class 
+        
+        Parameters
+        ----------
+        csv : str
+            Path of .csv file containing corp info
+        """
+        
+        # self.stock_data = './data/test_samsung.2021-12-12.csv'
+        self.csv = csv
+        
+        return
+
+    def _load_corp_info(self) -> list:
+        """DB에서 기업명,코드 등의 정보를 로딩한다.
+
+        Returns
+        -------
+        list of tuples of str
+            (기업코드,회사명,종목코드,수정일)의 리스트
+        """
+
+        set_corps = set()
+        kospi_db = [ f'{self._STOCK_DB}/{file}' for file in os.listdir(self._STOCK_DB) if file.startswith('kospi') ]
+        for csv_ in kospi_db:
+            print(f'> Load KOSPI DB: {kospi_db}...')
+            csv = open(csv_, 'r', encoding='utf8')
+            header = csv.readline()
+            for line in csv:
+                cols = line.strip().split(',')
+                set_corps.add((cols[0],cols[1],cols[2],cols[3]))
+            csv.close()
+        corps = sorted(list(set_corps), key=lambda x:x[1])
+
+        return corps
 
     def _set_api_key(self) -> None:
         """DART Open 서비스 이용을 위한 api_key 입력"""
@@ -309,29 +359,6 @@ class KOSPICrawler(Crawler):
 
         return corp_fin
 
-    def _load_corp_info(self) -> list:
-        """DB에서 기업명,코드 등의 정보를 로딩한다.
-
-        Returns
-        -------
-        list of tuples of str
-            (기업코드,회사명,종목코드,수정일)의 리스트
-        """
-
-        set_corps = set()
-        kospi_db = [ f'{self._STOCK_DB}/{file}' for file in os.listdir(self._STOCK_DB) if file.startswith('kospi') ]
-        for csv_ in kospi_db:
-            print(f'> Load KOSPI DB: {kospi_db}...')
-            csv = open(csv_, 'r', encoding='utf8')
-            header = csv.readline()
-            for line in csv:
-                cols = line.strip().split(',')
-                set_corps.add((cols[0],cols[1],cols[2],cols[3]))
-            csv.close()
-        corps = sorted(list(set_corps), key=lambda x:x[1])
-
-        return corps
-
     @property
     def url(self) -> str:
         """url getter method"""
@@ -402,7 +429,7 @@ if __name__ == '__main__':
     #url = 'https://finance.naver.com/item/main.naver?code=005930'
     #KOSPICrawler(url)
     #load_corp_code()
-    crawler = KOSPICrawler()
+    # crawler = KOSPICrawler()
     #crawler.run_naver()
     #corp = crawler._scrap_naver_fin_page('00177816','대주전자재료','078600')
     #corp = crawler._scrap_naver_fin_page('00126308','삼성엔지니어링','028050')
@@ -411,4 +438,4 @@ if __name__ == '__main__':
     #corp = crawler._scrap_naver_fin_page('00162461','한화솔루션','009830')
     #corp = crawler._scrap_naver_fin_page('00159616', '두산중공업', '034020')
     #corp = crawler._scrap_naver_fin_page('01199550', '현대에너지솔루션', '322000')
-    print(corp)
+    # print(corp)
