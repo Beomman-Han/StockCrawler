@@ -10,6 +10,8 @@ from bs4 import BeautifulSoup
 #from collections import OrderedDict
 from CorpFinance import CorpFinance
 
+from typing import List, Type
+
 class CorpInfo(object):
     
     def __init__(self,
@@ -46,7 +48,11 @@ class KOSPICrawler(Crawler):
         
         return
 
-    def _load_corp_info(self) -> list:
+    def _load_corp_info(
+        self,
+        csv : str
+        ) -> List[CorpInfo]:
+
         """DB에서 기업명,코드 등의 정보를 로딩한다.
 
         Returns
@@ -55,17 +61,16 @@ class KOSPICrawler(Crawler):
             (기업코드,회사명,종목코드,수정일)의 리스트
         """
 
-        set_corps = set()
-        kospi_db = [ f'{self._STOCK_DB}/{file}' for file in os.listdir(self._STOCK_DB) if file.startswith('kospi') ]
-        for csv_ in kospi_db:
-            print(f'> Load KOSPI DB: {kospi_db}...')
-            csv = open(csv_, 'r', encoding='utf8')
-            header = csv.readline()
-            for line in csv:
-                cols = line.strip().split(',')
-                set_corps.add((cols[0],cols[1],cols[2],cols[3]))
-            csv.close()
-        corps = sorted(list(set_corps), key=lambda x:x[1])
+        corps = []
+        csv_f = open(csv, 'r', encoding='utf8')
+        header = csv_f.readline()
+        for line in csv_f:
+            cols = line.strip().split(',')
+            corps.append(CorpInfo(cols[0], cols[1], cols[2], cols[3]))
+        csv_f.close()
+        
+        ## sort by corp_name        
+        corps.sort(key=lambda x:x.corp_name)
 
         return corps
 
