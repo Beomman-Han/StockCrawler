@@ -197,6 +197,14 @@ class KOSPICrawler:
         
         ## remove pre-exist ','
         num = num.replace(',', '')
+        
+        ## negative sign
+        sign = ''
+        if num[0] == '-':
+            sign = '-'
+            num = num[1:]
+
+        ## formatted num string
         new_num = ''
         
         start_idx = len(num) - 1
@@ -215,6 +223,8 @@ class KOSPICrawler:
                 new_num = f',{num[i]}' + new_num
                 continue
             new_num = num[i] + new_num
+        
+        new_num = sign + new_num
         
         return new_num
     
@@ -406,5 +416,5 @@ if __name__ == '__main__':
     crawler = KOSPICrawler()
     # corp = crawler._scrap_naver_fin_page('00159616', '두산중공업', '034020')
     # print(corp)
-    print(crawler._format_num('23,4231,1234.212141'))
+    print(crawler._format_num('-2123,4231,1234.212141'))
     
